@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>ELM SDK</title>
+    <script src="/proxy/widget/dhamen-pay.js"></script>
+    <style>
+       .wpwl-form {
+        border: 3px solid #4caf50;
+        background-color: #4caf50;
+      }
+      .wpwl-label {
+        color: #ffffff;
+        font-family: Arial, Helvetica, sans-serif;
+        font-size: 16px;
+        margin-bottom: 10px;
+        display: none;
+      }
+      .wpwl-control {
+        border: 2px solid #ffffff;
+        border-radius: 8px;
+        height: 60px;
+        padding: 10px;
+        font-family: Arial, Helvetica, sans-serif;
+      }
+      .wpwl-button-pay {
+        background-color: #4caf50;
+        color: white;
+        padding: 15px 32px;
+        text-align: center;
+        text-decoration: none;
+        display: inline-block;
+        font-size: 16px;
+        margin: 4px 2px;
+        cursor: pointer;
+        border: none;
+        border-radius: 8px;
+      } 
+    </style>
+  </head>
+  <body>
+    <div id="pay-root"></div>
+
+    <script>
+      (function () {
+        try {
+          var params = new URLSearchParams(window.location.search);
+          // Support common casings just in case
+          var invoiceid =
+            params.get('invoiceid') ||
+            params.get('invoiceId') ||
+            params.get('invoiceID');
+          var locale = (params.get('locale') || 'en').toLowerCase();
+          var paymentbrand = (params.get('paymentbrand') || 'APPLEPAY').toUpperCase();
+
+          var root = document.getElementById('pay-root') || document.body;
+
+          if (!invoiceid) {
+            var msg = document.createElement('div');
+            msg.style.padding = '12px 16px';
+            msg.style.margin = '16px 0';
+            msg.style.border = '1px solid #b00020';
+            msg.style.borderRadius = '8px';
+            msg.style.background = '#ffebee';
+            msg.style.color = '#b00020';
+            msg.textContent = 'Missing required "invoiceid" query parameter.';
+            root.appendChild(msg);
+            return;
+          }
+
+          var el = document.createElement('dhamen-pay');
+          el.setAttribute('invoiceid', invoiceid);
+          if (locale) el.setAttribute('locale', locale);
+          if (paymentbrand) el.setAttribute('paymentbrand', paymentbrand);
+
+          root.appendChild(el);
+        } catch (e) {
+          console.error('Failed to initialize dhamen-pay from URL params:', e);
+        }
+      })();
+    </script>
+  </body>
+</html>

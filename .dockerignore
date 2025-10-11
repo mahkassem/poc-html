@@ -1,0 +1,15 @@
+# Node
+node_modules
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Misc
+.DS_Store
+.git
+.gitignore
+
+# VS Code
+.vscode
+
+# Keep lockfile for reproducible builds
