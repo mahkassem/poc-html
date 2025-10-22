@@ -4,6 +4,11 @@ npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
 
+# Environment files (create your own in container)
+.env
+.env.local
+.env.*.local
+
 # Misc
 .DS_Store
 .git

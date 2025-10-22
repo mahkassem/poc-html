@@ -1,4 +1,8 @@
+require('dotenv').config();
+const fs = require('fs');
 const path = require('path');
+const http = require('http');
+const https = require('https');
 const express = require('express');
 const { createProxyMiddleware } = require('http-proxy-middleware');
 
@@ -15,6 +19,10 @@ app.use('/proxy', createProxyMiddleware({
   secure: true,
   selfHandleResponse: true, // we'll stream & optionally modify some responses
   pathRewrite: (pathReq) => pathReq.replace(/^\/proxy/, ''),
+  // Disable compression to avoid content decoding issues
+  headers: {
+    'Accept-Encoding': 'identity'
+  },
   onProxyRes: async (proxyRes, req, res) => {
     try {
       // Collect response body
@@ -52,6 +60,10 @@ app.use('/proxy', createProxyMiddleware({
         proxyRes.headers['Access-Control-Allow-Credentials'] = 'true';
         proxyRes.headers['Access-Control-Expose-Headers'] = 'Content-Type, Authorization';
 
+        // Remove compression-related headers since we disabled compression
+        delete proxyRes.headers['content-encoding'];
+        delete proxyRes.headers['transfer-encoding'];
+
         // Send modified response back to client
         res.writeHead(proxyRes.statusCode, proxyRes.headers);
         res.end(body);
@@ -73,7 +85,32 @@ app.use('/proxy', createProxyMiddleware({
 app.get('/health', (req, res) => res.json({ ok: true }));
 
 const port = process.env.PORT || 8080;
-app.listen(port, () => {
-  console.log(`HTTP server running at http://127.0.0.1:${port}`);
-  console.log('Proxying /proxy/* ->', targetHost);
-});
+const useHttps = process.env.USE_HTTPS === 'true';
+const certPath = process.env.CERT_PATH || path.join(__dirname, 'cert.pem');
+const keyPath = process.env.KEY_PATH || path.join(__dirname, 'key.pem');
+
+if (useHttps) {
+  // Check if certificate files exist
+  if (!fs.existsSync(certPath) || !fs.existsSync(keyPath)) {
+    console.error(`Certificate files not found:`);
+    console.error(`  CERT_PATH: ${certPath}`);
+    console.error(`  KEY_PATH: ${keyPath}`);
+    console.error('Set USE_HTTPS=false to run without SSL, or provide valid certificate paths.');
+    process.exit(1);
+  }
+
+  const options = {
+    key: fs.readFileSync(keyPath),
+    cert: fs.readFileSync(certPath),
+  };
+
+  https.createServer(options, app).listen(port, () => {
+    console.log(`HTTPS server running at https://127.0.0.1:${port}`);
+    console.log('Proxying /proxy/* ->', targetHost);
+  });
+} else {
+  app.listen(port, () => {
+    console.log(`HTTP server running at http://127.0.0.1:${port}`);
+    console.log('Proxying /proxy/* ->', targetHost);
+  });
+}

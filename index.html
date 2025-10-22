@@ -3,41 +3,76 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <title>ELM SDK</title>
-    <script src="/proxy/widget/dhamen-pay.js"></script>
     <style>
-       .wpwl-form {
-        border: 3px solid #4caf50;
-        background-color: #4caf50;
+      body {
+        font-family: -apple-system, sans-serif;
+        background: #1a1a1a;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        min-height: 100vh;
+        padding: 20px;
       }
-      .wpwl-label {
-        color: #ffffff;
-        font-family: Arial, Helvetica, sans-serif;
-        font-size: 16px;
-        margin-bottom: 10px;
-        display: none;
+      .wpwl-form-card {
+        background: #2d2d2d !important;
+        border-radius: 24px !important;
+        padding: 32px !important;
+        max-width: 420px !important;
+        box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5) !important;
       }
-      .wpwl-control {
-        border: 2px solid #ffffff;
-        border-radius: 8px;
-        height: 60px;
-        padding: 10px;
-        font-family: Arial, Helvetica, sans-serif;
+      .wpwl-group-cardNumber,
+      .wpwl-group-expiry,
+      .wpwl-group-cvv,
+      .wpwl-label,
+      .wpwl-control-cardHolder,
+      .wpwl-brand,
+      .wpwl-control-brand {
+        display: none !important;
+      }
+
+      .unified-card {
+        display: flex;
+        align-items: center;
+        background: #3a3a3a;
+        border: 1px solid #4a4a4a;
+        border-radius: 16px;
+        padding: 0 20px;
+        height: 56px;
+        gap: 12px;
+        margin-bottom: 16px;
+      }
+      .unified-card input {
+        border: none;
+        background: transparent;
+        color: #999;
+        font-size: 15px;
+        outline: none;
+      }
+      .card-number {
+        flex: 1;
+      }
+      .expiry {
+        width: 70px;
+        text-align: center;
+      }
+      .cvv {
+        width: 50px;
+        text-align: center;
       }
       .wpwl-button-pay {
-        background-color: #4caf50;
-        color: white;
-        padding: 15px 32px;
-        text-align: center;
-        text-decoration: none;
-        display: inline-block;
-        font-size: 16px;
-        margin: 4px 2px;
-        cursor: pointer;
-        border: none;
-        border-radius: 8px;
-      } 
+        background: linear-gradient(135deg, #4ade80, #22c55e) !important;
+        border: none !important;
+        border-radius: 50px !important;
+        padding: 18px !important;
+        font-weight: 700 !important;
+        text-transform: uppercase !important;
+        color: white !important;
+        width: 100% !important;
+      }
     </style>
+    <script src="/proxy/widget/dhamen-pay.js"></script>
   </head>
   <body>
     <div id="pay-root"></div>
@@ -48,37 +83,67 @@
           var params = new URLSearchParams(window.location.search);
           // Support common casings just in case
           var invoiceid =
-            params.get('invoiceid') ||
-            params.get('invoiceId') ||
-            params.get('invoiceID');
-          var locale = (params.get('locale') || 'en').toLowerCase();
-          var paymentbrand = (params.get('paymentbrand') || 'APPLEPAY').toUpperCase();
+            params.get("invoiceid") ||
+            params.get("invoiceId") ||
+            params.get("invoiceID");
+          var locale = (params.get("locale") || "en").toLowerCase();
+          var paymentbrand = (
+            params.get("paymentbrand") || "VISA MASTER MADA APPLEPAY"
+          ).toUpperCase();
+          var formstyle = (params.get("formstyle") || "card").toLowerCase();
 
-          var root = document.getElementById('pay-root') || document.body;
+          var root = document.getElementById("pay-root") || document.body;
 
           if (!invoiceid) {
-            var msg = document.createElement('div');
-            msg.style.padding = '12px 16px';
-            msg.style.margin = '16px 0';
-            msg.style.border = '1px solid #b00020';
-            msg.style.borderRadius = '8px';
-            msg.style.background = '#ffebee';
-            msg.style.color = '#b00020';
+            var msg = document.createElement("div");
+            msg.style.padding = "12px 16px";
+            msg.style.margin = "16px 0";
+            msg.style.border = "1px solid #b00020";
+            msg.style.borderRadius = "8px";
+            msg.style.background = "#ffebee";
+            msg.style.color = "#b00020";
             msg.textContent = 'Missing required "invoiceid" query parameter.';
             root.appendChild(msg);
             return;
           }
 
-          var el = document.createElement('dhamen-pay');
-          el.setAttribute('invoiceid', invoiceid);
-          if (locale) el.setAttribute('locale', locale);
-          if (paymentbrand) el.setAttribute('paymentbrand', paymentbrand);
+          var el = document.createElement("dhamen-pay");
+          el.setAttribute("invoiceid", invoiceid);
+          if (locale) el.setAttribute("locale", locale);
+          // if (paymentbrand) el.setAttribute("paymentbrand", paymentbrand);
+          if (formstyle) el.setAttribute("formstyle", formstyle);
 
           root.appendChild(el);
         } catch (e) {
-          console.error('Failed to initialize dhamen-pay from URL params:', e);
+          console.error("Failed to initialize dhamen-pay from URL params:", e);
         }
       })();
+    </script>
+    <script>
+      var wpwlOptions = {
+        onReady: function () {
+          $(
+            ".wpwl-group-cardNumber, .wpwl-group-expiry, .wpwl-group-cvv"
+          ).hide();
+          var unified = $(`
+          <div class="unified-card">
+            <input type="text" class="card-number" placeholder="Card number"
+            maxlength="19">
+            <input type="text" class="expiry" placeholder="MM/YY" maxlength="5">
+            <input type="text" class="cvv" placeholder="CVV" maxlength="4">
+          </div>
+          <div class="unified-card">
+            <input type="text" class="card-holder" placeholder="Cardholder Name" maxlength="100">
+          </div>
+          `);
+          $(".wpwl-form-card").prepend(unified);
+          // Add formatting
+          $(".card-number").on("input", function (e) {
+            var v = e.target.value.replace(/\D/g, "");
+            e.target.value = v.replace(/(\d{4})(?=\d)/g, "$1 ");
+          });
+        },
+      };
     </script>
   </body>
 </html>

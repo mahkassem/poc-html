@@ -21,9 +21,13 @@ ENV PORT=${PORT}
 # Expose the port (informational)
 EXPOSE ${PORT}
 
-# Healthcheck using HTTP
+# Healthcheck (adapts to HTTP/HTTPS based on USE_HTTPS env var)
 HEALTHCHECK --interval=30s --timeout=5s --start-period=10s --retries=3 \
-  CMD wget -q -O - http://localhost:${PORT}/health || exit 1
+  CMD if [ "$USE_HTTPS" = "true" ]; then \
+    wget -q --no-check-certificate -O - https://localhost:${PORT}/health; \
+  else \
+    wget -q -O - http://localhost:${PORT}/health; \
+  fi || exit 1
 
 # Start server
 CMD ["npm", "start"]
