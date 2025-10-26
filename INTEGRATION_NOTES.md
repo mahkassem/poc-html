@@ -26,6 +26,12 @@ The `cardpayment.html` file now features a custom-styled payment form that integ
 - CVV: Numbers only, max 4 digits
 - Cardholder: Required field
 
+✅ **Card Brand Detection**
+- Automatically detects card brand as user types
+- Updates card icon in real-time (Visa, Mastercard, Mada)
+- Icon opacity increases when brand is detected
+- Supports Visa (starts with 4), Mastercard (51-55, 2221-2720), and Mada (specific BINs)
+
 ✅ **DhamenPay Integration**
 - Widget loaded with jQuery and proper scripts
 - Hidden using CSS (`display: none`, positioned off-screen)
@@ -202,12 +208,27 @@ Current theme uses:
 - [ ] Widget loads without errors
 - [ ] Custom form displays correctly
 - [ ] Input formatting works (card number, expiry, CVV)
+- [ ] Card brand detection works (try Visa: 4111..., Mastercard: 5555..., Mada: 5888...)
+- [ ] Card icon changes dynamically as you type
 - [ ] Validation messages appear
 - [ ] Check console for iframe accessibility
 - [ ] Submit button triggers payment flow
 - [ ] Error messages display properly
 - [ ] Invoice ID can be set via query string
 - [ ] Responsive design works on mobile
+
+### Test Card Numbers for Brand Detection
+
+**Visa:**
+- Start with `4` (e.g., `4111 1111 1111 1111`)
+
+**Mastercard:**
+- Start with `51-55` (e.g., `5555 5555 5555 4444`)
+- Or `2221-2720` range
+
+**Mada:**
+- Try `5888 4500 0000 0000` (common Mada BIN)
+- Or `4406 4700 0000 0000`
 
 ## Troubleshooting
 

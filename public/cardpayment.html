@@ -1,8 +1,10 @@
 <!DOCTYPE html>
 <html lang="en">
 	<head>
-		<meta charset="utf-8" />
-		<title>DhamenPay</title>
+		<meta charset="UTF-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+		<title>DhamenPay - Card Payment</title>
+
 		<!-- Load jQuery before the payment widget -->
 		<script
 			src="https://code.jquery.com/jquery-3.6.0.min.js"
@@ -10,177 +12,726 @@
 			crossorigin="anonymous"
 		></script>
 
+		<!-- Load DhamenPay Widget -->
 		<script src="/proxy/widget/dhamen-pay.js" type="text/javascript"></script>
-		<meta name="viewport" content="width=device-width, initial-scale=1" />
 
-		<style type="text/css">
+		<style>
+			* {
+				margin: 0;
+				padding: 0;
+				box-sizing: border-box;
+			}
+
 			body {
 				font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
-					"Helvetica Neue", Arial, sans-serif;
-				background: #000;
-			}
-			.wpwl-form-card {
-				box-shadow: none !important;
-				background: #faf9f936 !important;
-				color: #ffffff55;
-				border-radius: 15px !important;
-				border: none !important;
-				padding: 16px !important ;
-				margin: auto !important;
-			}
-			input[type="tel"],
-			input[type="text"],
-			input[type="email"],
-			input[type="password"],
-			select,
-			textarea {
-				background: transparent !important;
-				border: 1px solid #ffffff55 !important;
-				border-radius: 24px !important;
-				color: #ffffff !important;
-				font-size: 19px !important;
-				padding: 24px !important;
-				width: 100% !important;
-				box-sizing: border-box !important;
-			}
-			.wpwl-control-brand {
-				display: none !important;
-			}
-			.wpwl-label {
-				display: none !important;
+					Oxygen, Ubuntu, Cantarell, sans-serif;
+				background: #1a1a1a;
+				display: flex;
+				align-items: center;
+				justify-content: center;
+				min-height: 100vh;
+				padding: 20px;
 			}
 
-			/* Target specific form groups for styling */
-			.wpwl-group-cardNumber,
-			.wpwl-group-cvv,
-			.wpwl-group-expiry,
-			.wpwl-group-cardHolder {
-				margin-bottom: 15px !important;
-			}
-
-			/* Ensure iframes are properly sized and accessible */
-			.wpwl-group-cardNumber .wpwl-control-iframe,
-			.wpwl-group-cvv .wpwl-control-iframe,
-			.wpwl-group-expiry .wpwl-control-iframe,
-			.wpwl-group-cardHolder .wpwl-control-iframe {
-				border: 1px solid #ffffff55 !important;
-				border-radius: 24px !important;
-				background: transparent !important;
-				height: 50px !important;
-				width: 100% !important;
-				padding: 15px !important;
-				pointer-events: auto !important;
-			}
-
-			/* Target iframe container - allow interaction */
-			.wpwl-control-iframe {
-				border-radius: 24px !important;
-				height: auto !important;
-				min-height: 40px !important;
-			}
-
-			.wpwl-button-pay {
-				border: none !important;
-				font-weight: bold !important;
-				text-transform: uppercase !important;
-				padding: 17px;
+			.container {
 				width: 100%;
+				max-width: 400px;
+			}
+
+			.card-details {
+				background: #2a2a2a;
+				border-radius: 16px;
+				padding: 16px;
+				margin-bottom: 20px;
+				box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+			}
+
+			.unified-input {
+				display: flex;
+				background: #3a3a3a;
+				border: 1px solid #4a4a4a;
+				border-radius: 12px;
+				transition: border-color 0.2s ease;
+				margin-bottom: 16px;
+				position: relative;
+			}
+
+			.unified-input:focus-within {
+				border-color: #666;
+			}
+
+			input[type="text"] {
+				background: transparent;
+				border: none;
+				padding: 16px 6px;
+				color: #ffffff;
+				font-size: 16px;
+				outline: none;
+			}
+
+			input[type="text"]:focus {
+				outline: none;
+				border-color: #666;
+			}
+
+			input[type="text"]::placeholder {
+				color: #888;
+			}
+
+			#cc-number {
+				flex: 1 auto;
+				padding-left: 44px;
+			}
+
+			#cc-exp {
+				width: 70px;
+				text-align: center;
+			}
+
+			#cc-cvc {
+				width: 60px;
+				text-align: center;
+				padding-right: 12px;
+			}
+
+			#cc-holder {
+				flex: 1;
+				padding-left: 12px;
+			}
+
+			.payment-methods {
+				color: #888;
+				font-size: 14px;
+				margin-bottom: 0;
+				display: flex;
+				align-items: center;
+				gap: 8px;
+			}
+
+			.payment-methods svg {
+				height: 20px;
+				width: 32px;
+				margin-left: 8px;
+				border-radius: 4px;
+				box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+			}
+
+			.pay-button {
+				width: 100%;
+				background: #4ade80;
+				color: #ffffff;
+				border: none;
 				border-radius: 50px;
+				padding: 18px;
+				font-size: 18px;
+				font-weight: 600;
+				cursor: pointer;
+				transition: background-color 0.2s ease;
+				text-transform: uppercase;
+			}
+
+			.pay-button:hover {
+				background: #22c55e;
+			}
+
+			.pay-button:active {
+				transform: translateY(1px);
+			}
+
+			.pay-button:disabled {
+				background: #6b7280;
+				cursor: not-allowed;
+			}
+
+			.card-icon {
+				position: absolute;
+				left: 8px;
+				top: 50%;
+				transform: translateY(-50%);
+				width: 20px;
+				height: 20px;
+				opacity: 0.2;
+				transition: opacity 0.3s ease;
+			}
+
+			.card-icon.detected {
+				opacity: 1;
+			}
+
+			.card-icon.brand-visa,
+			.card-icon.brand-mastercard,
+			.card-icon.brand-mada {
+				width: 32px;
+				height: 20px;
+			}
+
+			/* Hide the DhamenPay widget completely */
+			#dhamen-pay-widget {
+				display: none !important;
+				visibility: hidden !important;
+				position: absolute !important;
+				left: -9999px !important;
+				width: 0 !important;
+				height: 0 !important;
+				opacity: 0 !important;
+			}
+
+			/* Error message styling */
+			.error-message {
+				color: #ef4444;
+				font-size: 14px;
+				margin-top: 8px;
+				display: none;
+			}
+
+			.error-message.show {
+				display: block;
 			}
 		</style>
 	</head>
 	<body>
-		<dhamen-pay
-			formstyle="card"
-			invoiceid="e8e2805f41c7c024a42a90159723675e4e60ac5c9b2522f002d832ac7816fee5"
-		></dhamen-pay>
-	</body>
+		<div class="container">
+			<form id="custom-payment-form" action="submit_form.php" method="POST">
+				<div class="card-details">
+					<div class="unified-input">
+						<svg
+							class="card-icon"
+							viewBox="0 0 24 24"
+							fill="none"
+							stroke="white"
+							stroke-width="2"
+						>
+							<rect x="1" y="4" width="22" height="16" rx="2" ry="2" />
+							<line x1="1" y1="10" x2="23" y2="10" />
+						</svg>
+						<input
+							type="text"
+							id="cc-number"
+							name="cc-number"
+							placeholder="Card number"
+							maxlength="19"
+							autocomplete="cc-number"
+							required
+						/>
+						<input
+							type="text"
+							id="cc-exp"
+							name="cc-exp"
+							placeholder="MM/YY"
+							required
+						/>
+						<input
+							type="text"
+							id="cc-cvc"
+							name="cc-cvc"
+							placeholder="CVV"
+							required
+						/>
+					</div>
+					<div class="unified-input">
+						<input
+							type="text"
+							id="cc-holder"
+							name="cc-holder"
+							placeholder="Cardholder name"
+							required
+						/>
+					</div>
 
-	<script type="text/javascript">
-		// You can add custom JavaScript here if needed
+					<div class="payment-methods">
+						WE ACCEPT
+						<!-- MasterCard SVG -->
+						<svg width="32" height="20" viewBox="0 0 32 20" fill="none">
+							<rect width="32" height="20" rx="4" fill="white" />
+							<circle cx="12" cy="10" r="6" fill="#EB001B" />
+							<circle cx="20" cy="10" r="6" fill="#FF5F00" />
+						</svg>
+						<!-- Visa SVG -->
+						<svg
+							width="32"
+							height="20"
+							viewBox="0 0 780 500"
+							xmlns="http://www.w3.org/2000/svg"
+							fill="none"
+						>
+							<rect width="780" height="500" rx="40" fill="#0E4595" />
+							<path
+								d="m293.2 348.73l33.361-195.76h53.36l-33.385 195.76h-53.336zm246.11-191.54c-10.57-3.966-27.137-8.222-47.822-8.222-52.725 0-89.865 26.55-90.18 64.603-0.299 28.13 26.514 43.822 46.752 53.186 20.771 9.595 27.752 15.714 27.654 24.283-0.131 13.121-16.586 19.116-31.922 19.116-21.357 0-32.703-2.967-50.227-10.276l-6.876-3.11-7.489 43.823c12.463 5.464 35.51 10.198 59.438 10.443 56.09 0 92.5-26.246 92.916-66.882 0.199-22.269-14.016-39.216-44.801-53.188-18.65-9.055-30.072-15.099-29.951-24.268 0-8.137 9.668-16.839 30.557-16.839 17.449-0.27 30.09 3.535 39.938 7.5l4.781 2.26 7.232-42.429m137.31-4.223h-41.232c-12.773 0-22.332 3.487-27.941 16.234l-79.244 179.4h56.031s9.16-24.123 11.232-29.418c6.125 0 60.555 0.084 68.338 0.084 1.596 6.853 6.49 29.334 6.49 29.334h49.514l-43.188-195.64zm-65.418 126.41c4.412-11.279 21.26-54.723 21.26-54.723-0.316 0.522 4.379-11.334 7.074-18.684l3.605 16.879s10.219 46.729 12.354 56.528h-44.293zm-363.3-126.41l-52.24 133.5-5.567-27.13c-9.725-31.273-40.025-65.155-73.898-82.118l47.766 171.2 56.456-0.064 84.004-195.39h-56.521"
+								fill="#ffffff"
+							/>
+							<path
+								d="m146.92 152.96h-86.041l-0.681 4.073c66.938 16.204 111.23 55.363 129.62 102.41l-18.71-89.96c-3.23-12.395-12.597-16.094-24.186-16.527"
+								fill="#F2AE14"
+							/>
+						</svg>
+						<!-- Mada SVG -->
+						<svg width="32" height="20" viewBox="0 0 32 20" fill="none">
+							<rect width="32" height="20" rx="4" fill="#4A90E2" />
+							<rect x="0" y="8.67" width="32" height="2.67" fill="white" />
+							<rect x="0" y="11.33" width="32" height="8.67" fill="#8BC34A" />
+						</svg>
+					</div>
+				</div>
+				<button type="submit" class="pay-button">PAY NOW</button>
+				<div class="error-message" id="error-message"></div>
+			</form>
+		</div>
 
-		var wpwlOptions = {
-			onReady: function () {
-				// Define available brands (from data-brands or checkout config)
-				var availableBrands = ["VISA", "MASTER", "MADA"];
-				var mainContainer = $("<div></div>");
-				// Create a horizontal container (flexbox for layout)
-				var container = $(
-					'<div class="wpwl-group" style="display: flex; justify-content: center; align-items: center; margin-bottom: 10px; flex-wrap: wrap;"></div>'
-				);
+		<!-- Hidden DhamenPay Widget -->
+		<div id="dhamen-pay-widget">
+			<dhamen-pay
+				formstyle="card"
+				invoiceid="e8e2805f41c7c024a42a90159723675e4e60ac5c9b2522f002d832ac7816fee5"
+			></dhamen-pay>
+		</div>
 
-				// Add a "We Accept" label before the logos
-				var label = $(
-					'<span style="margin-right: 10px; font-weight: bold;">WE ACCEPT</span>'
-				);
-				container.append(label);
+		<script type="text/javascript">
+			/**
+			 * DhamenPay Custom Form Integration
+			 *
+			 * This implementation creates a custom-styled payment form that interfaces
+			 * with the DhamenPay widget. The approach:
+			 *
+			 * 1. Custom form provides a beautiful UI matching the design requirements
+			 * 2. DhamenPay widget is loaded but hidden from view
+			 * 3. When user submits custom form, JavaScript attempts to:
+			 *    - Populate the DhamenPay iframe fields (if same-origin allows)
+			 *    - Trigger the DhamenPay form submission
+			 *
+			 * IMPORTANT NOTES:
+			 * - Due to iframe security (CORS), direct field access may be restricted
+			 * - If iframes are from a different origin, values cannot be set programmatically
+			 * - The widget must be from the same domain or expose APIs for this to work
+			 * - For production, verify iframe accessibility or use widget APIs if available
+			 *
+			 * FALLBACK APPROACH:
+			 * If iframe access fails, you may need to:
+			 * - Make the DhamenPay widget visible and styled
+			 * - Use the custom form as a facade that overlays the actual widget
+			 * - Or request API access from DhamenPay to programmatically set values
+			 */
 
-				// Add SVGs for each brand
-				availableBrands.forEach(function (brand) {
-					var svg = getBrandSvg(brand); // Function to get SVG markup
-					if (svg) {
-						// Wrap SVG in a div for consistent styling
-						var svgWrapper = $(
-							'<div style="height: 20px; margin: 0 10px 5px 0; cursor: pointer;" class=""></div>'
+			// Store form data and widget state
+			let dhamenPayReady = false;
+			let customFormData = {};
+			let iframeAccessible = false;
+
+			// Configure wpwlOptions before the widget loads
+			var wpwlOptions = {
+				onReady: function () {
+					console.log("DhamenPay widget loaded and ready");
+					dhamenPayReady = true;
+
+					// Store references to iframe inputs
+					window.dhamenIframes = {
+						cardNumber: $(".wpwl-group-cardNumber iframe"),
+						expiry: $(".wpwl-group-expiry iframe"),
+						cvv: $(".wpwl-group-cvv iframe"),
+						cardHolder: $(".wpwl-group-cardHolder iframe"),
+					};
+
+					// Test iframe accessibility
+					try {
+						const testIframe = $(".wpwl-group-cardNumber iframe")[0];
+						if (testIframe) {
+							const iframeDoc =
+								testIframe.contentDocument || testIframe.contentWindow.document;
+							if (iframeDoc) {
+								iframeAccessible = true;
+								console.log(
+									"✓ Iframe fields are accessible - direct value setting possible"
+								);
+							}
+						}
+					} catch (e) {
+						iframeAccessible = false;
+						console.warn(
+							"✗ Iframe fields are not accessible due to CORS policy"
 						);
-						svgWrapper.append(svg);
-						container.append(svgWrapper);
+						console.warn(
+							"Payment data will be collected but may require manual entry in widget"
+						);
 					}
-				});
 
-				// Insert the container before the pay button
-				container.insertBefore(".wpwl-button-pay");
-			},
-		};
+					console.log("Iframe accessibility:", iframeAccessible);
+				},
+				onBeforeSubmitCard: function () {
+					console.log("DhamenPay form submitting...");
+					return true; // Allow submission
+				},
+				onAfterSubmit: function () {
+					console.log("Payment submitted successfully");
+				},
+			};
 
-		// Helper function to return SVG markup for each brand
-		function getBrandSvg(brand) {
-			switch (brand.toUpperCase()) {
-				case "MASTER":
-				case "MASTERCARD":
-					return `
-<svg width="32" height="20" viewBox="0 0 32 20" fill="none">
-<rect width="32" height="20" rx="4" fill="white" />
-<circle cx="12" cy="10" r="6" fill="#EB001B" />
-<circle cx="20" cy="10" r="6" fill="#FF5F00" />
-</svg>`;
-				case "VISA":
-					return `
-<svg width="32" height="20" viewBox="0 0 780 500" xmlns="http://www.w3.org/2000/svg" fill="none">
+			// Card brand detection function
+			function detectCardBrand(cardNumber) {
+				// Remove spaces and non-digits
+				const cleanNumber = cardNumber.replace(/\s/g, "").replace(/\D/g, "");
+
+				if (cleanNumber.length < 2) {
+					return null;
+				}
+
+				// Visa: starts with 4
+				if (/^4/.test(cleanNumber)) {
+					return "visa";
+				}
+
+				// Mastercard: 51-55 or 2221-2720
+				if (/^5[1-5]/.test(cleanNumber) || /^2[2-7]/.test(cleanNumber)) {
+					const first4 = parseInt(cleanNumber.substring(0, 4));
+					if (
+						cleanNumber.startsWith("5") ||
+						(first4 >= 2221 && first4 <= 2720)
+					) {
+						return "mastercard";
+					}
+				}
+
+				// Mada (Saudi Arabia): Common BINs
+				// Mada cards typically start with: 4, 5, 6, 9
+				// More specific BIN ranges for Mada
+				const madaBins = [
+					"588845",
+					"440647",
+					"440795",
+					"446404",
+					"457865",
+					"968208",
+					"588848",
+					"457997",
+					"410685",
+					"406996",
+					"432328",
+					"428671",
+					"428672",
+					"428673",
+					"968201",
+					"446672",
+					"543357",
+					"434107",
+					"407197",
+					"407395",
+				];
+
+				for (let bin of madaBins) {
+					if (cleanNumber.startsWith(bin)) {
+						return "mada";
+					}
+				}
+
+				return null;
+			}
+
+			// Get brand SVG icon
+			function getBrandIcon(brand) {
+				switch (brand) {
+					case "visa":
+						return `<svg width="32" height="20" viewBox="0 0 780 500" xmlns="http://www.w3.org/2000/svg" fill="none">
 <rect width="780" height="500" rx="40" fill="#0E4595" />
 <path d="m293.2 348.73l33.361-195.76h53.36l-33.385 195.76h-53.336zm246.11-191.54c-10.57-3.966-27.137-8.222-47.822-8.222-52.725 0-89.865 26.55-90.18 64.603-0.299 28.13 26.514 43.822 46.752 53.186 20.771 9.595 27.752 15.714 27.654 24.283-0.131 13.121-16.586 19.116-31.922 19.116-21.357 0-32.703-2.967-50.227-10.276l-6.876-3.11-7.489 43.823c12.463 5.464 35.51 10.198 59.438 10.443 56.09 0 92.5-26.246 92.916-66.882 0.199-22.269-14.016-39.216-44.801-53.188-18.65-9.055-30.072-15.099-29.951-24.268 0-8.137 9.668-16.839 30.557-16.839 17.449-0.27 30.09 3.535 39.938 7.5l4.781 2.26 7.232-42.429m137.31-4.223h-41.232c-12.773 0-22.332 3.487-27.941 16.234l-79.244 179.4h56.031s9.16-24.123 11.232-29.418c6.125 0 60.555 0.084 68.338 0.084 1.596 6.853 6.49 29.334 6.49 29.334h49.514l-43.188-195.64zm-65.418 126.41c4.412-11.279 21.26-54.723 21.26-54.723-0.316 0.522 4.379-11.334 7.074-18.684l3.605 16.879s10.219 46.729 12.354 56.528h-44.293zm-363.3-126.41l-52.24 133.5-5.567-27.13c-9.725-31.273-40.025-65.155-73.898-82.118l47.766 171.2 56.456-0.064 84.004-195.39h-56.521" fill="#ffffff" />
 <path d="m146.92 152.96h-86.041l-0.681 4.073c66.938 16.204 111.23 55.363 129.62 102.41l-18.71-89.96c-3.23-12.395-12.597-16.094-24.186-16.527" fill="#F2AE14" />
 </svg>`;
-				case "MADA":
-					return `
-<svg width="32" height="20" viewBox="0 0 32 20" fill="none">
+					case "mastercard":
+						return `<svg width="32" height="20" viewBox="0 0 32 20" fill="none">
+<rect width="32" height="20" rx="4" fill="white" />
+<circle cx="12" cy="10" r="6" fill="#EB001B" />
+<circle cx="20" cy="10" r="6" fill="#FF5F00" />
+</svg>`;
+					case "mada":
+						return `<svg width="32" height="20" viewBox="0 0 32 20" fill="none">
 <rect width="32" height="20" rx="4" fill="#4A90E2" />
 <rect x="0" y="8.67" width="32" height="2.67" fill="white" />
 <rect x="0" y="11.33" width="32" height="8.67" fill="#8BC34A" />
 </svg>`;
-				default:
-					return null; // Return null for unsupported brands
+					default:
+						return `<svg viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2">
+<rect x="1" y="4" width="22" height="16" rx="2" ry="2" />
+<line x1="1" y1="10" x2="23" y2="10" />
+</svg>`;
+				}
 			}
-		}
-	</script>
 
-	<script>
-		// Get invoice ID from query string
-		const urlParams = new URLSearchParams(window.location.search);
-		const invoiceId = urlParams.get("invoiceId");
+			// Update card icon based on detected brand
+			function updateCardIcon(brand) {
+				const cardIcon = $(".card-icon");
+				const iconHtml = getBrandIcon(brand);
 
-		// If invoice ID is provided in query string, update the dhamen-pay element
-		if (invoiceId) {
-			const dhamenPayElement = document.getElementById("dhamenPayWidget");
-			if (dhamenPayElement) {
-				dhamenPayElement.setAttribute("invoiceid", invoiceId);
+				cardIcon.html(iconHtml);
+
+				// Update classes
+				cardIcon.removeClass("brand-visa brand-mastercard brand-mada");
+				if (brand) {
+					cardIcon.addClass("detected brand-" + brand);
+					console.log(`Card brand detected: ${brand.toUpperCase()}`);
+				} else {
+					cardIcon.removeClass("detected");
+				}
 			}
-		} else {
-			// If no invoice ID in query string, redirect back to payment selection
-			console.warn(
-				"No invoice ID provided. Redirecting to payment selection page."
-			);
-			window.location.href = "payment-select.html";
-		}
-	</script>
+
+			// Wait for DOM to be ready
+			$(document).ready(function () {
+				// Get invoice ID from query string
+				const urlParams = new URLSearchParams(window.location.search);
+				const invoiceId = urlParams.get("invoiceId");
+
+				// Update invoice ID if provided
+				if (invoiceId) {
+					$("dhamen-pay").attr("invoiceid", invoiceId);
+				}
+
+				// Format card number input (add spaces every 4 digits)
+				$("#cc-number").on("input", function (e) {
+					let value = e.target.value.replace(/\s/g, "").replace(/\D/g, "");
+					let formatted = value.replace(/(\d{4})(?=\d)/g, "$1 ");
+					if (formatted.length <= 19) {
+						e.target.value = formatted;
+						customFormData.cardNumber = value; // Store without spaces
+
+						// Detect and update card brand icon
+						const detectedBrand = detectCardBrand(value);
+						updateCardIcon(detectedBrand);
+					}
+				});
+
+				// Format expiry input (MM/YY)
+				$("#cc-exp").on("input", function (e) {
+					let value = e.target.value.replace(/\D/g, "");
+					if (value.length >= 2) {
+						value = value.substring(0, 2) + "/" + value.substring(2, 4);
+					}
+					e.target.value = value;
+					customFormData.expiry = value;
+				});
+
+				// Format CVV input (numbers only)
+				$("#cc-cvc").on("input", function (e) {
+					let value = e.target.value.replace(/\D/g, "");
+					e.target.value = value.substring(0, 4);
+					customFormData.cvv = value;
+				});
+
+				// Store cardholder name
+				$("#cc-holder").on("input", function (e) {
+					customFormData.cardHolder = e.target.value;
+				});
+
+				// Handle custom form submission
+				$("#custom-payment-form").on("submit", function (e) {
+					e.preventDefault();
+
+					// Hide any previous errors
+					$("#error-message").removeClass("show").text("");
+
+					// Validate form data
+					if (
+						!customFormData.cardNumber ||
+						customFormData.cardNumber.length < 13
+					) {
+						showError("Please enter a valid card number");
+						return;
+					}
+
+					if (!customFormData.expiry || customFormData.expiry.length !== 5) {
+						showError("Please enter a valid expiry date (MM/YY)");
+						return;
+					}
+
+					if (!customFormData.cvv || customFormData.cvv.length < 3) {
+						showError("Please enter a valid CVV");
+						return;
+					}
+
+					if (
+						!customFormData.cardHolder ||
+						customFormData.cardHolder.trim() === ""
+					) {
+						showError("Please enter the cardholder name");
+						return;
+					}
+
+					// Disable submit button
+					$(".pay-button").prop("disabled", true).text("PROCESSING...");
+
+					// Check if DhamenPay widget is ready
+					if (!dhamenPayReady) {
+						showError(
+							"Payment system is loading. Please try again in a moment."
+						);
+						$(".pay-button").prop("disabled", false).text("PAY NOW");
+						return;
+					}
+
+					// Try to populate and submit the DhamenPay form
+					try {
+						if (!iframeAccessible) {
+							console.warn(
+								"Iframe fields are not accessible. " +
+									"Attempting to trigger submission with stored data. " +
+									"Manual entry may be required."
+							);
+						}
+						populateDhamenPayForm();
+					} catch (error) {
+						console.error("Error submitting payment:", error);
+						showError(
+							"An error occurred while processing your payment. Please try again."
+						);
+						$(".pay-button").prop("disabled", false).text("PAY NOW");
+					}
+				});
+			});
+
+			// Function to populate DhamenPay form with custom form data
+			function populateDhamenPayForm() {
+				console.log("Attempting to populate DhamenPay form...");
+
+				// Since iframe fields cannot be directly accessed due to security,
+				// we'll trigger the form submission programmatically
+				// The actual field values need to be filled manually or through allowed methods
+
+				// Attempt to find and trigger the submit button
+				setTimeout(function () {
+					const submitButton = $(".wpwl-button-pay");
+					if (submitButton.length > 0) {
+						// Try to programmatically fill iframe fields if accessible
+						// Note: This may not work due to iframe security restrictions
+						tryFillIframeFields();
+
+						// Trigger form submission
+						setTimeout(function () {
+							submitButton.click();
+						}, 500);
+					} else {
+						showError(
+							"Payment widget not found. Please refresh and try again."
+						);
+						$(".pay-button").prop("disabled", false).text("PAY NOW");
+					}
+				}, 100);
+			}
+
+			// Attempt to fill iframe fields
+			function tryFillIframeFields() {
+				// Due to iframe security restrictions (same-origin policy),
+				// we cannot directly access iframe content from different origins
+				console.log("Attempting to populate DhamenPay fields with data:", {
+					cardNumber: customFormData.cardNumber
+						? "****" + customFormData.cardNumber.slice(-4)
+						: "none",
+					expiry: customFormData.expiry || "none",
+					cvv: customFormData.cvv ? "***" : "none",
+					cardHolder: customFormData.cardHolder || "none",
+				});
+
+				// Method 1: Try to find and interact with iframe inputs using contentWindow
+				if (iframeAccessible) {
+					console.log("Attempting direct iframe access...");
+					try {
+						// Attempt to access iframes (may fail due to CORS)
+						const cardNumberIframe = $(".wpwl-group-cardNumber iframe")[0];
+						const expiryIframe = $(".wpwl-group-expiry iframe")[0];
+						const cvvIframe = $(".wpwl-group-cvv iframe")[0];
+						const cardHolderIframe = $(".wpwl-group-cardHolder iframe")[0];
+
+						let successCount = 0;
+
+						if (
+							cardNumberIframe &&
+							trySetIframeValue(
+								cardNumberIframe,
+								"input",
+								customFormData.cardNumber
+							)
+						) {
+							successCount++;
+						}
+
+						if (
+							expiryIframe &&
+							trySetIframeValue(expiryIframe, "input", customFormData.expiry)
+						) {
+							successCount++;
+						}
+
+						if (
+							cvvIframe &&
+							trySetIframeValue(cvvIframe, "input", customFormData.cvv)
+						) {
+							successCount++;
+						}
+
+						if (
+							cardHolderIframe &&
+							trySetIframeValue(
+								cardHolderIframe,
+								"input",
+								customFormData.cardHolder
+							)
+						) {
+							successCount++;
+						}
+
+						console.log(`Successfully populated ${successCount}/4 fields`);
+					} catch (e) {
+						console.warn("Cannot access iframe content:", e);
+					}
+				} else {
+					console.warn(
+						"Iframes are not accessible - skipping direct value setting"
+					);
+				}
+
+				// Method 2: Try using postMessage if widget supports it
+				try {
+					const message = {
+						type: "fillPaymentData",
+						data: customFormData,
+					};
+					window.postMessage(message, "*");
+				} catch (e) {
+					console.warn("postMessage failed:", e);
+				}
+
+				// Method 3: Check if widget exposes any global APIs
+				if (window.wpwl) {
+					console.log("WPWL object found:", window.wpwl);
+					// If there are setter methods, use them here
+				}
+			}
+
+			// Try to set value in iframe - returns true if successful
+			function trySetIframeValue(iframe, selector, value) {
+				try {
+					const iframeDoc =
+						iframe.contentDocument || iframe.contentWindow.document;
+					const input = iframeDoc.querySelector(selector);
+					if (input) {
+						input.value = value;
+						input.dispatchEvent(new Event("input", { bubbles: true }));
+						input.dispatchEvent(new Event("change", { bubbles: true }));
+						console.log(`✓ Set value for ${selector}`);
+						return true;
+					}
+					console.warn(`✗ Input element not found for ${selector}`);
+					return false;
+				} catch (e) {
+					console.warn(
+						`✗ Failed to set iframe value for ${selector}:`,
+						e.message
+					);
+					return false;
+				}
+			}
+
+			// Show error message
+			function showError(message) {
+				$("#error-message").text(message).addClass("show");
+				setTimeout(function () {
+					$("#error-message").removeClass("show");
+				}, 5000);
+			}
+		</script>
+	</body>
 </html>
