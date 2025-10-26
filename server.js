@@ -11,6 +11,9 @@ const app = express();
 // Serve static files from current directory
 app.use(express.static(path.join(__dirname)));
 
+// Serve static files from 'public' directory
+app.use(express.static(path.join(__dirname, 'public')));
+
 // Proxy middleware to forward requests to the remote host and inject CORS header
 const targetHost = 'https://dhamendemo.elm.sa';
 app.use('/proxy', createProxyMiddleware({
