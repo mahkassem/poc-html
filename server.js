@@ -14,6 +14,9 @@ app.use(express.static(path.join(__dirname)));
 // Serve static files from 'public' directory
 app.use(express.static(path.join(__dirname, 'public')));
 
+// Serve jQuery from node_modules
+app.use('/jquery', express.static(path.join(__dirname, 'node_modules/jquery/dist')));
+
 // Proxy middleware to forward requests to the remote host and inject CORS header
 const targetHost = 'https://dhamendemo.elm.sa';
 app.use('/proxy', createProxyMiddleware({
