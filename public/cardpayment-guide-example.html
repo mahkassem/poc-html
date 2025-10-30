@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta charset="utf-8" />
+		<title>DhamenPay</title>
+		<!-- Load jQuery before the payment widget -->
+		<script
+			src="https://code.jquery.com/jquery-3.6.0.min.js"
+			integrity="sha256-/xUj+3OJU5yExlq6GSYGSHk7tPXikynS7ogEvDej/m4="
+			crossorigin="anonymous"
+		></script>
+
+		<script src="/proxy/widget/dhamen-pay.js" type="text/javascript"></script>
+		<meta name="viewport" content="width=device-width, initial-scale=1" />
+		<style>
+			body {
+				font-family: -apple-system, sans-serif;
+				background: #1a1a1a;
+				display: flex;
+				align-items: center;
+				justify-content: center;
+				min-height: 100vh;
+				padding: 20px;
+			}
+			.wpwl-form-card {
+				background: #2d2d2d !important;
+				border-radius: 24px !important;
+				padding: 32px !important;
+				max-width: 420px !important;
+				box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5) !important;
+			}
+			.wpwl-group-cardNumber,
+			.wpwl-group-expiry,
+			.wpwl-group-cvv,
+			.wpwl-label,
+			.wpwl-control-brand {
+				display: none !important;
+			}
+			.unified-card {
+				display: flex;
+				align-items: center;
+				background: #3a3a3a;
+				border: 1px solid #4a4a4a;
+				border-radius: 16px;
+				padding: 0 20px;
+				height: 56px;
+				gap: 12px;
+				margin-bottom: 16px;
+			}
+			.unified-card input {
+				border: none;
+				background: transparent;
+				color: #999;
+				font-size: 15px;
+				outline: none;
+			}
+			.card-number {
+				flex: 1;
+			}
+			.expiry {
+				width: 70px;
+				text-align: center;
+			}
+			.cvv {
+				width: 50px;
+				text-align: center;
+			}
+			.wpwl-button-pay {
+				background: linear-gradient(135deg, #4ade80, #22c55e) !important;
+				border: none !important;
+				border-radius: 50px !important;
+				padding: 18px !important;
+				font-weight: 700 !important;
+				text-transform: uppercase !important;
+				color: white !important;
+				width: 100% !important;
+			}
+		</style>
+	</head>
+	<body>
+		<dhamen-pay
+			formstyle="card"
+			invoiceid="d251f124ec533ce7bf5a10d83a7d259ad69c7ad0dcaa43377ec231dffe6cc0b2"
+		></dhamen-pay>
+		<script>
+			var wpwlOptions = {
+				onReady: function () {
+					$(
+						".wpwl-group-cardNumber, .wpwl-group-expiry, .wpwl-group-cvv"
+					).hide();
+					var unified = $(`
+ <div class="unified-card">
+ <input type="text" class="card-number" placeholder="Card number"
+maxlength="19">
+ <input type="text" class="expiry" placeholder="MM/YY" maxlength="5">
+ <input type="text" class="cvv" placeholder="CVV" maxlength="4">
+ </div>
+ `);
+					$(".wpwl-form-card").prepend(unified);
+					// Add formatting
+					$(".card-number").on("input", function (e) {
+						var v = e.target.value.replace(/\D/g, "");
+						e.target.value = v.replace(/(\d{4})(?=\d)/g, "$1 ");
+					});
+				},
+			};
+		</script>
+	</body>
+</html>
