@@ -238,7 +238,7 @@
 	<body>
 		<dhamen-pay
 			formstyle="card"
-			invoiceid="394c2d34d18451e88e1b5f870e63be871be983944c55fae6615cabc726ea8a9f"
+			invoiceid="a012d754960293e3878c0f1e0e5894d79d23f2e692a95af94610e39a1104ebad"
 		></dhamen-pay>
 	</body>
 
@@ -247,153 +247,39 @@
 
 		var wpwlOptions = {
 			onReady: function () {
-				// var mainContainer = $("<div></div>");
-				// // Create a horizontal container (flexbox for layout)
-				// var container = $(
-				// 	'<div class="wpwl-group" style="display: flex; justify-content: center; align-items: center; margin-bottom: 10px; flex-wrap: wrap;"></div>'
-				// );
-
-				// // Add a "We Accept" label before the logos
-				// var label = $(
-				// 	'<span style="margin-right: 10px; font-weight: bold;">WE ACCEPT</span>'
-				// );
-				// container.append(label);
-
-				// // Define available brands (from data-brands or checkout config)
-				// var availableBrands = ["VISA", "MASTER", "MADA"];
-				// // Add SVGs for each brand
-				// availableBrands.forEach(function (brand) {
-				// 	var svg = getBrandSvg(brand); // Function to get SVG markup
-				// 	if (svg) {
-				// 		// Wrap SVG in a div for consistent styling
-				// 		var svgWrapper = $(
-				// 			'<div style="height: 20px; margin: 0 10px 5px 0; cursor: pointer;" class=""></div>'
-				// 		);
-				// 		svgWrapper.append(svg);
-				// 		container.append(svgWrapper);
-				// 	}
-				// });
-
-				// // Insert the container before the pay button
-				// container.insertBefore(".wpwl-button-pay");
-
-				// Create unified container
-				var unifiedContainer = $(`
+				// Create payment methods display
+				var paymentMethodsContainer = $(`
 <div class="container">
-      <form action="submit_form.php" method="POST">
-        <div class="card-details">
-          <div class="unified-input">
-            <svg
-              class="card-icon"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="white"
-              stroke-width="2"
-            >
-              <rect x="1" y="4" width="22" height="16" rx="2" ry="2" />
-              <line x1="1" y1="10" x2="23" y2="10" />
-            </svg>
-            <input
-              type="text"
-              id="cc-number"
-              name="card.number"
-              placeholder="Card number"
-              required
-            />
-            <input
-              type="text"
-              id="cc-exp"
-              name="card.exp"
-              placeholder="MM/YY"
-              required
-            />
-            <input
-              type="text"
-              id="cc-cvc"
-              name="card.cvc"
-              placeholder="CVV"
-              required
-            />
-          </div>
-          <div class="unified-input">
-            <input
-              type="text"
-              id="cc-holder"
-              name="card.holder"
-							class="card-holder"
-              placeholder="Cardholder name"
-              required
-            />
-          </div>
-
-          <div class="payment-methods">
-            WE ACCEPT
-            <!-- MasterCard SVG -->
-            <svg width="32" height="20" viewBox="0 0 32 20" fill="none">
-              <rect width="32" height="20" rx="4" fill="white" />
-              <circle cx="12" cy="10" r="6" fill="#EB001B" />
-              <circle cx="20" cy="10" r="6" fill="#FF5F00" />
-            </svg>
-            <!-- Visa SVG -->
-            <svg
-                width="32"
-                height="20"
-                viewBox="0 0 780 500"
-                xmlns="http://www.w3.org/2000/svg"
-                fill="none"
-            >
-                <rect width="780" height="500" rx="40" fill="#0E4595" />
-                <path
-                    d="m293.2 348.73l33.361-195.76h53.36l-33.385 195.76h-53.336zm246.11-191.54c-10.57-3.966-27.137-8.222-47.822-8.222-52.725 0-89.865 26.55-90.18 64.603-0.299 28.13 26.514 43.822 46.752 53.186 20.771 9.595 27.752 15.714 27.654 24.283-0.131 13.121-16.586 19.116-31.922 19.116-21.357 0-32.703-2.967-50.227-10.276l-6.876-3.11-7.489 43.823c12.463 5.464 35.51 10.198 59.438 10.443 56.09 0 92.5-26.246 92.916-66.882 0.199-22.269-14.016-39.216-44.801-53.188-18.65-9.055-30.072-15.099-29.951-24.268 0-8.137 9.668-16.839 30.557-16.839 17.449-0.27 30.09 3.535 39.938 7.5l4.781 2.26 7.232-42.429m137.31-4.223h-41.232c-12.773 0-22.332 3.487-27.941 16.234l-79.244 179.4h56.031s9.16-24.123 11.232-29.418c6.125 0 60.555 0.084 68.338 0.084 1.596 6.853 6.49 29.334 6.49 29.334h49.514l-43.188-195.64zm-65.418 126.41c4.412-11.279 21.26-54.723 21.26-54.723-0.316 0.522 4.379-11.334 7.074-18.684l3.605 16.879s10.219 46.729 12.354 56.528h-44.293zm-363.3-126.41l-52.24 133.5-5.567-27.13c-9.725-31.273-40.025-65.155-73.898-82.118l47.766 171.2 56.456-0.064 84.004-195.39h-56.521"
-                    fill="#ffffff"
-                />
-                <path
-                    d="m146.92 152.96h-86.041l-0.681 4.073c66.938 16.204 111.23 55.363 129.62 102.41l-18.71-89.96c-3.23-12.395-12.597-16.094-24.186-16.527"
-                    fill="#F2AE14"
-                />
-            </svg>
-            <!-- Mada SVG -->
-            <svg width="32" height="20" viewBox="0 0 32 20" fill="none">
-              <rect width="32" height="20" rx="4" fill="#4A90E2" />
-              <rect x="0" y="8.67" width="32" height="2.67" fill="white" />
-              <rect x="0" y="11.33" width="32" height="8.67" fill="#8BC34A" />
-            </svg>
-          </div>
-        </div>
-      </form>
+  <div class="card-details">
+    <div class="payment-methods">
+      WE ACCEPT
+      <!-- MasterCard SVG -->
+      <svg width="32" height="20" viewBox="0 0 32 20" fill="none">
+        <rect width="32" height="20" rx="4" fill="white" />
+        <circle cx="12" cy="10" r="6" fill="#EB001B" />
+        <circle cx="20" cy="10" r="6" fill="#FF5F00" />
+      </svg>
+      <!-- Visa SVG -->
+      <svg width="32" height="20" viewBox="0 0 780 500" xmlns="http://www.w3.org/2000/svg" fill="none">
+        <rect width="780" height="500" rx="40" fill="#0E4595" />
+        <path d="m293.2 348.73l33.361-195.76h53.36l-33.385 195.76h-53.336zm246.11-191.54c-10.57-3.966-27.137-8.222-47.822-8.222-52.725 0-89.865 26.55-90.18 64.603-0.299 28.13 26.514 43.822 46.752 53.186 20.771 9.595 27.752 15.714 27.654 24.283-0.131 13.121-16.586 19.116-31.922 19.116-21.357 0-32.703-2.967-50.227-10.276l-6.876-3.11-7.489 43.823c12.463 5.464 35.51 10.198 59.438 10.443 56.09 0 92.5-26.246 92.916-66.882 0.199-22.269-14.016-39.216-44.801-53.188-18.65-9.055-30.072-15.099-29.951-24.268 0-8.137 9.668-16.839 30.557-16.839 17.449-0.27 30.09 3.535 39.938 7.5l4.781 2.26 7.232-42.429m137.31-4.223h-41.232c-12.773 0-22.332 3.487-27.941 16.234l-79.244 179.4h56.031s9.16-24.123 11.232-29.418c6.125 0 60.555 0.084 68.338 0.084 1.596 6.853 6.49 29.334 6.49 29.334h49.514l-43.188-195.64zm-65.418 126.41c4.412-11.279 21.26-54.723 21.26-54.723-0.316 0.522 4.379-11.334 7.074-18.684l3.605 16.879s10.219 46.729 12.354 56.528h-44.293zm-363.3-126.41l-52.24 133.5-5.567-27.13c-9.725-31.273-40.025-65.155-73.898-82.118l47.766 171.2 56.456-0.064 84.004-195.39h-56.521" fill="#ffffff" />
+        <path d="m146.92 152.96h-86.041l-0.681 4.073c66.938 16.204 111.23 55.363 129.62 102.41l-18.71-89.96c-3.23-12.395-12.597-16.094-24.186-16.527" fill="#F2AE14" />
+      </svg>
+      <!-- Mada SVG -->
+      <svg width="32" height="20" viewBox="0 0 32 20" fill="none">
+        <rect width="32" height="20" rx="4" fill="#4A90E2" />
+        <rect x="0" y="8.67" width="32" height="2.67" fill="white" />
+        <rect x="0" y="11.33" width="32" height="8.67" fill="#8BC34A" />
+      </svg>
     </div>
- `);
+  </div>
+</div>
+`);
 
-				// Hide original fields
-				// $(
-				// 	[
-				// 		".wpwl-group-cardNumber",
-				// 		".wpwl-group-expiry",
-				// 		".wpwl-group-cvv",
-				// 		".wpwl-group-cardHolder",
-				// 		".wpwl-group-brand",
-				// 	].join(",")
-				// ).hide();
+				// Hide labels and brand selector
+				$(".wpwl-label, .wpwl-group-brand, .wpwl-label-cvv").hide();
 
-				setTimeout(() => {
-					// Insert into form
-					$(".wpwl-button-pay").addClass("pay-button");
-					// Fill in the card details
-					$("iframe[name='card.number']")
-						.contents()
-						.find("input")
-						.val("4970110000000062");
-					$(".wpwl-control-expiry").val("05 / 28");
-					$(".wpwl-control-cardHolder").val("Mostafa Adly");
-					$("iframe[name='card.cvv']").contents().find("input").val("123");
-					console.log($("iframe[name='card.cvv']"));
-				}, 3000);
-
-				// Submit the form
-				// $(".wpwl-form-card").submit();
-				// $(".wpwl-button-pay").removeClass("wpwl-button-pay");
-				// $(".wpwl-button-pay").html("PAY");
-				// $(".wpwl-form-card").prepend(unifiedContainer);
+				// Style the form container
 				$(".wpwl-form-card").css({
 					padding: "0",
 					"background-image": "none",
@@ -404,7 +290,112 @@
 					"margin-bottom": "0",
 					"margin-top": "0",
 					"margin-left": "0",
+					"max-width": "400px",
+					margin: "0 auto",
 				});
+
+				// Create a unified input container for the actual widget fields
+				var unifiedCardInput = $(
+					'<div class="unified-input" style="display: flex; background: #3a3a3a; border: 1px solid #4a4a4a; border-radius: 12px; padding: 0; margin-bottom: 16px; align-items: center;"></div>'
+				);
+
+				// Style and move card number iframe
+				$(".wpwl-group-cardNumber").css({
+					"margin-bottom": "0",
+					flex: "1 1 auto",
+					display: "flex",
+				});
+				$(".wpwl-wrapper-cardNumber").css({ width: "100%", display: "flex" });
+				$(".wpwl-control-cardNumber").css({
+					flex: "1",
+					border: "none",
+					background: "transparent",
+					"border-radius": "12px 0 0 12px",
+					height: "50px",
+					padding: "0 12px",
+				});
+
+				// Style and add expiry
+				$(".wpwl-group-expiry").css({
+					"margin-bottom": "0",
+					width: "80px",
+					display: "flex",
+				});
+				$(".wpwl-wrapper-expiry").css({ width: "100%", display: "flex" });
+				$(".wpwl-control-expiry").css({
+					width: "100%",
+					border: "none",
+					background: "transparent",
+					color: "#ffffff",
+					"font-size": "16px",
+					padding: "16px 6px",
+					outline: "none",
+					"text-align": "center",
+				});
+
+				// Style and add CVV iframe
+				$(".wpwl-group-cvv").css({
+					"margin-bottom": "0",
+					width: "70px",
+					display: "flex",
+				});
+				$(".wpwl-wrapper-cvv").css({ width: "100%", display: "flex" });
+				$(".wpwl-control-cvv").css({
+					width: "100%",
+					border: "none",
+					background: "transparent",
+					"border-radius": "0 12px 12px 0",
+					height: "50px",
+					padding: "0 12px",
+				});
+
+				// Move fields into unified container
+				unifiedCardInput.append($(".wpwl-group-cardNumber"));
+				unifiedCardInput.append($(".wpwl-group-expiry"));
+				unifiedCardInput.append($(".wpwl-group-cvv"));
+
+				$(".card-details").append(unifiedCardInput);
+
+				// Style cardholder input
+				var holderInput = $(
+					'<div class="unified-input" style="display: flex; background: #3a3a3a; border: 1px solid #4a4a4a; border-radius: 12px; padding: 0; margin-bottom: 16px;"></div>'
+				);
+				$(".wpwl-group-cardHolder").css({
+					"margin-bottom": "0",
+					flex: "1",
+					display: "flex",
+				});
+				$(".wpwl-wrapper-cardHolder").css({ width: "100%", display: "flex" });
+				$(".wpwl-control-cardHolder").css({
+					width: "100%",
+					border: "none",
+					background: "transparent",
+					color: "#ffffff",
+					"font-size": "16px",
+					padding: "16px 12px",
+					outline: "none",
+					"border-radius": "12px",
+					height: "50px",
+				});
+				$(".wpwl-control-cardHolder").attr("placeholder", "Cardholder name");
+
+				holderInput.append($(".wpwl-group-cardHolder"));
+				$(".card-details").append(holderInput);
+
+				// Add payment methods at the bottom
+				$(".card-details").append(paymentMethodsContainer);
+
+				// Hide mobile phone and birth date fields (not needed)
+				$(
+					".wpwl-group-mobilePhoneCountryCode, .wpwl-group-mobilePhoneNumber, .wpwl-group-birthDate"
+				).hide();
+
+				// Style pay button
+				$(".wpwl-button-pay").addClass("pay-button");
+
+				console.log(
+					"Payment form styled successfully. Card number and CVV are in secure iframes."
+				);
 			},
 		};
 
