@@ -4,7 +4,8 @@
 	"private": true,
 	"scripts": {
 		"start": "node server.js",
-		"watch": "nodemon server.js --env-file=.env -e js,html"
+		"watch": "nodemon server.js --env-file=.env -e js,html",
+		"generate-invoice-id": "./create-invoice_id.sh"
 	},
 	"dependencies": {
 		"dotenv": "^16.3.1",
