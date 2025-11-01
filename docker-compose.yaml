@@ -1,0 +1,11 @@
+version: '3.8'
+
+services:
+  frontend-poc:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: frontend-poc
+    ports:
+      - "8085:8080"
+    restart: always
