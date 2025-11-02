@@ -24,12 +24,8 @@ app.use(express.static(path.join(__dirname, 'public')));
 // Serve jQuery from node_modules
 app.use('/jquery', express.static(path.join(__dirname, 'node_modules/jquery/dist')));
 
-// RENAMED: Using /pg instead of /proxy to avoid ad blockers
-const PROXY_PATH = process.env.PROXY_PATH || '/pg'; // "pg" = payment gateway
-const targetHost = process.env.TARGET_HOST || 'https://dhamendemo.elm.sa';
-
 // Handle CORS preflight requests
-app.options(`${PROXY_PATH}/*`, (req, res) => {
+app.options('/proxy/*', (req, res) => {
   res.header('Access-Control-Allow-Origin', req.headers.origin || '*');
   res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
   res.header('Access-Control-Allow-Headers', 'Content-Type, Authorization, X-Requested-With');
@@ -38,20 +34,20 @@ app.options(`${PROXY_PATH}/*`, (req, res) => {
 });
 
 // Proxy middleware to forward requests to the remote host and inject CORS header
-app.use(PROXY_PATH, createProxyMiddleware({
+const targetHost = 'https://dhamendemo.elm.sa';
+app.use('/proxy', createProxyMiddleware({
   target: targetHost,
   changeOrigin: true,
   secure: true,
-  selfHandleResponse: true,
+  selfHandleResponse: true, // we'll stream & optionally modify some responses
   pathRewrite: (pathReq) => {
-    const rewritten = pathReq.replace(new RegExp(`^${PROXY_PATH}`), '');
-    console.log(`[PROXY] ${pathReq} -> ${targetHost}${rewritten}`);
+    const rewritten = pathReq.replace(/^\/proxy/, '');
+    console.log(`[PROXY] ${pathReq} -> ${rewritten}`);
     return rewritten;
   },
   // Disable compression to avoid content decoding issues
   headers: {
-    'Accept-Encoding': 'identity',
-    'User-Agent': 'PaymentGatewayProxy/1.0'
+    'Accept-Encoding': 'identity'
   },
   logLevel: 'debug',
   onProxyReq: (proxyReq, req, res) => {
@@ -67,8 +63,7 @@ app.use(PROXY_PATH, createProxyMiddleware({
     res.end(JSON.stringify({ 
       error: 'Proxy Error', 
       message: err.message,
-      url: req.url,
-      target: targetHost 
+      url: req.url 
     }));
   },
   onProxyRes: async (proxyRes, req, res) => {
@@ -84,46 +79,38 @@ app.use(PROXY_PATH, createProxyMiddleware({
         if (/javascript|application\/ecmascript|text\/.+javascript/.test(contentType) || req.url.includes('/widget')) {
           try {
             let text = body.toString('utf8');
-            // Replace remote host occurrences with local proxy path
+            // Replace remote host occurrences with local proxy path so the widget's XHR calls go through us
             const proto = req.headers['x-forwarded-proto'] || (req.socket.encrypted ? 'https' : 'http');
             const host = req.headers.host;
             const baseOrigin = `${proto}://${host}`;
-            
-            // Replace ELM's URLs with our proxy path
-            text = text.replace(/https?:\/\/dhamendemo\.elm\.sa/g, `${baseOrigin}${PROXY_PATH}`);
-            
+            text = text.replace(/https?:\/\/dhamendemo\.elm\.sa/g, `${baseOrigin}/proxy`);
             body = Buffer.from(text, 'utf8');
             proxyRes.headers['content-length'] = Buffer.byteLength(body);
-            
-            console.log(`[PROXY] Rewrote ${req.url} - replaced ${targetHost} with ${baseOrigin}${PROXY_PATH}`);
           } catch (e) {
+            // if rewrite fails, continue with original body
             console.error('Failed to rewrite widget JS:', e.message);
           }
         }
 
-        // Ensure CORS headers for browser
+        // Ensure CORS headers for browser (echo the request origin if present)
         const proto = req.headers['x-forwarded-proto'] || (req.socket.encrypted ? 'https' : 'http');
         const host = req.headers.host;
         const baseOrigin = `${proto}://${host}`;
         const reqOrigin = req.headers.origin || baseOrigin;
-        
         proxyRes.headers['Access-Control-Allow-Origin'] = reqOrigin;
+        // Helpful when different origins may hit the proxy
         proxyRes.headers['Vary'] = [proxyRes.headers['Vary'], 'Origin'].filter(Boolean).join(', ');
         proxyRes.headers['Access-Control-Allow-Credentials'] = 'true';
         proxyRes.headers['Access-Control-Expose-Headers'] = 'Content-Type, Authorization';
 
-        // Remove compression-related headers
+        // Remove compression-related headers since we disabled compression
         delete proxyRes.headers['content-encoding'];
         delete proxyRes.headers['transfer-encoding'];
-
-        // Log response status
-        console.log(`[PROXY RES] ${req.url} - Status: ${proxyRes.statusCode}`);
 
         // Send modified response back to client
         res.writeHead(proxyRes.statusCode, proxyRes.headers);
         res.end(body);
       });
-      
       proxyRes.on('error', (err) => {
         console.error('Proxy response error:', err.message);
         res.writeHead(500);
@@ -137,38 +124,8 @@ app.use(PROXY_PATH, createProxyMiddleware({
   }
 }));
 
-// Health check endpoint
-app.get('/health', (req, res) => res.json({ 
-  ok: true, 
-  proxyPath: PROXY_PATH,
-  target: targetHost,
-  uptime: process.uptime() 
-}));
-
-// Metrics endpoint
-let requestCount = 0;
-let errorCount = 0;
-
-app.use((req, res, next) => {
-  requestCount++;
-  res.on('finish', () => {
-    if (res.statusCode >= 400) {
-      errorCount++;
-    }
-  });
-  next();
-});
-
-app.get('/metrics', (req, res) => {
-  res.json({
-    uptime: process.uptime(),
-    requestCount,
-    errorCount,
-    memory: process.memoryUsage(),
-    proxyPath: PROXY_PATH,
-    target: targetHost
-  });
-});
+// Helpful endpoint to check CORS
+app.get('/health', (req, res) => res.json({ ok: true }));
 
 const port = process.env.PORT || 8080;
 const useHttps = process.env.USE_HTTPS === 'true';
@@ -191,15 +148,12 @@ if (useHttps) {
   };
 
   https.createServer(options, app).listen(port, () => {
-    console.log(`✓ HTTPS server running at https://127.0.0.1:${port}`);
-    console.log(`✓ Proxying ${PROXY_PATH}/* -> ${targetHost}`);
-    console.log(`✓ Health check: https://127.0.0.1:${port}/health`);
+    console.log(`HTTPS server running at https://127.0.0.1:${port}`);
+    console.log('Proxying /proxy/* ->', targetHost);
   });
 } else {
   app.listen(port, () => {
-    console.log(`✓ HTTP server running at http://127.0.0.1:${port}`);
-    console.log(`✓ Proxying ${PROXY_PATH}/* -> ${targetHost}`);
-    console.log(`✓ Health check: http://127.0.0.1:${port}/health`);
+    console.log(`HTTP server running at http://127.0.0.1:${port}`);
+    console.log('Proxying /proxy/* ->', targetHost);
   });
 }
-
