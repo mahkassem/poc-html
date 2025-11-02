@@ -57,6 +57,10 @@
 				border-color: #666;
 			}
 
+			input {
+				color: #ffffff !important;
+			}
+
 			input[type="text"] {
 				background: transparent;
 				border: none;
@@ -195,6 +199,10 @@
 		// You can add custom JavaScript here if needed
 
 		var wpwlOptions = {
+			style: "card",
+			iframeStyles:
+				"* { color: #ffffff !important; } input { color: #ffffff !important; font-size: 16px !important; background: transparent !important; } input:focus { color: #ffffff !important; } input::placeholder { color: #888 !important; } body { color: #ffffff !important; } input[type='text'] { color: #ffffff !important; } input[type='tel'] { color: #ffffff !important; }",
+			locale: "en",
 			onReady: function () {
 				// Create payment methods display
 				var paymentMethodsContainer = $(`
@@ -209,6 +217,9 @@
 
 				// Hide CVV hint/label that appears on change
 				$(".wpwl-hint, .wpwl-hint-cvvHint").hide();
+
+				// Force hide CVV label specifically
+				$(".wpwl-label-cvv, div[name='wpwl-label-card.cvv']").hide();
 
 				// Add payment methods container after cardholder
 				$(".wpwl-form-card").prepend(paymentMethodsContainer);
@@ -226,6 +237,7 @@
 					"margin-left": "0",
 					"max-width": "400px",
 					margin: "0 auto",
+					color: "#ffffff !important",
 				});
 
 				// Create a unified input container for the actual widget fields
@@ -247,6 +259,7 @@
 					"border-radius": "12px 0 0 12px",
 					height: "50px",
 					padding: "0 12px",
+					color: "#ffffff !important",
 				});
 
 				// Style and add expiry
@@ -359,9 +372,10 @@
 				// Style pay button
 				$(".wpwl-button-pay").addClass("pay-button");
 
-				// Watch for dynamically added CVV hints and hide them
+				// Watch for dynamically added CVV hints and labels and hide them
 				var observer = new MutationObserver(function (mutations) {
 					$(".wpwl-hint, .wpwl-hint-cvvHint, [class*='wpwl-hint']").hide();
+					$(".wpwl-label-cvv, div[name='wpwl-label-card.cvv']").hide();
 				});
 				observer.observe(document.querySelector(".wpwl-form-card"), {
 					childList: true,
