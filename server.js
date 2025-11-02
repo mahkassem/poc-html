@@ -27,6 +27,25 @@ app.use('/jquery', express.static(path.join(__dirname, 'node_modules/jquery/dist
 // RENAMED: Using /pg instead of /proxy to avoid ad blockers
 const PROXY_PATH = process.env.PROXY_PATH || '/pg'; // "pg" = payment gateway
 const targetHost = process.env.TARGET_HOST || 'https://dhamendemo.elm.sa';
+const PUBLIC_DOMAIN = process.env.PUBLIC_DOMAIN || null; // Set this in production (e.g., 'https://poc.vastmenu.com')
+
+// Helper function to get the correct base origin
+function getBaseOrigin(req) {
+  // If PUBLIC_DOMAIN is set, use it (production override)
+  if (PUBLIC_DOMAIN) {
+    console.log(`[ORIGIN] Using PUBLIC_DOMAIN: ${PUBLIC_DOMAIN}`);
+    return PUBLIC_DOMAIN;
+  }
+  
+  // Check for reverse proxy headers first (nginx, apache, load balancer)
+  const forwardedProto = req.headers['x-forwarded-proto'] || (req.socket.encrypted ? 'https' : 'http');
+  const forwardedHost = req.headers['x-forwarded-host'] || req.headers['host'];
+  
+  const baseOrigin = `${forwardedProto}://${forwardedHost}`;
+  console.log(`[ORIGIN] Detected from headers: ${baseOrigin} (X-Forwarded-Host: ${req.headers['x-forwarded-host']}, Host: ${req.headers['host']})`);
+  
+  return baseOrigin;
+}
 
 // Handle CORS preflight requests
 app.options(`${PROXY_PATH}/*`, (req, res) => {
@@ -84,27 +103,25 @@ app.use(PROXY_PATH, createProxyMiddleware({
         if (/javascript|application\/ecmascript|text\/.+javascript/.test(contentType) || req.url.includes('/widget')) {
           try {
             let text = body.toString('utf8');
-            // Replace remote host occurrences with local proxy path
-            const proto = req.headers['x-forwarded-proto'] || (req.socket.encrypted ? 'https' : 'http');
-            const host = req.headers.host;
-            const baseOrigin = `${proto}://${host}`;
+            
+            // Get the correct base origin (production domain or detected from headers)
+            const baseOrigin = getBaseOrigin(req);
             
             // Replace ELM's URLs with our proxy path
-            text = text.replace(/https?:\/\/dhamendemo\.elm\.sa/g, `${baseOrigin}${PROXY_PATH}`);
+            const replacementUrl = `${baseOrigin}${PROXY_PATH}`;
+            text = text.replace(/https?:\/\/dhamendemo\.elm\.sa/g, replacementUrl);
             
             body = Buffer.from(text, 'utf8');
             proxyRes.headers['content-length'] = Buffer.byteLength(body);
             
-            console.log(`[PROXY] Rewrote ${req.url} - replaced ${targetHost} with ${baseOrigin}${PROXY_PATH}`);
+            console.log(`[PROXY] Rewrote ${req.url} - replaced ${targetHost} with ${replacementUrl}`);
           } catch (e) {
             console.error('Failed to rewrite widget JS:', e.message);
           }
         }
 
         // Ensure CORS headers for browser
-        const proto = req.headers['x-forwarded-proto'] || (req.socket.encrypted ? 'https' : 'http');
-        const host = req.headers.host;
-        const baseOrigin = `${proto}://${host}`;
+        const baseOrigin = getBaseOrigin(req);
         const reqOrigin = req.headers.origin || baseOrigin;
         
         proxyRes.headers['Access-Control-Allow-Origin'] = reqOrigin;

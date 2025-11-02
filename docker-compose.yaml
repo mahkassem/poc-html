@@ -1,4 +1,4 @@
-version: '3.8'
+version: "3.8"
 
 services:
   frontend-poc:
@@ -8,4 +8,17 @@ services:
     container_name: frontend-poc
     ports:
       - "8085:8080"
+    environment:
+      - PORT=8080
+      - PROXY_PATH=/pg
+      - TARGET_HOST=https://dhamendemo.elm.sa
+      # CRITICAL: Set this to your production domain to fix 127.0.0.1 issue
+      - PUBLIC_DOMAIN=https://poc.vastmenu.com
+      - USE_HTTPS=false
     restart: always
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 10s
